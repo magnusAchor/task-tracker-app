@@ -1,15 +1,75 @@
 import React, { useState } from 'react';
-import './App.css';
+import styled from 'styled-components';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
+const Container = styled.div`
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+`;
+
+const Header = styled.h1`
+  color: #333;
+`;
+
+const Button = styled.button`
+  background-color: #4caf50;
+  color: #fff;
+  padding: 8px 16px;
+  margin-top: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+`;
+
+const TaskList = styled.ul`
+  list-style: none;
+  padding: 0;
+`;
+
+const TaskItem = styled.li`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const TaskText = styled.span`
+  flex-grow: 1;
+  text-decoration: ${(props) => (props.completed ? 'line-through' : 'none')};
+  color: ${(props) => (props.completed ? '#777' : '#333')};
+`;
+
+const TaskInput = styled.input`
+  padding: 8px;
+  margin-right: 10px;
+`;
 
 const App = () => {
   const [tasks, setTasks] = useState([
-    { id: 1, text: 'Task 1', completed: false },
-    { id: 2, text: 'Task 2', completed: true },
+    { id: 1, text: 'Task 1', completed: false, date: new Date() },
+    { id: 2, text: 'Task 2', completed: true, date: new Date() },
     // Add more tasks as needed
   ]);
 
-  const addTask = (text) => {
-    setTasks([...tasks, { id: tasks.length + 1, text, completed: false }]);
+  const [newTaskText, setNewTaskText] = useState('');
+  const [newTaskDate, setNewTaskDate] = useState(new Date());
+
+  const addTask = () => {
+    setTasks([
+      ...tasks,
+      { id: tasks.length + 1, text: newTaskText, completed: false, date: newTaskDate },
+    ]);
+    setNewTaskText('');
+    setNewTaskDate(new Date());
   };
 
   const deleteTask = (id) => {
@@ -25,29 +85,31 @@ const App = () => {
   };
 
   return (
-    <div className="App">
-      <h1>Task Tracker</h1>
+    <Container>
+      <Header>Task Tracker</Header>
       <div>
-        <button onClick={() => addTask(`New Task ${tasks.length + 1}`)}>
-          Add Task
-        </button>
+        <TaskInput
+          type="text"
+          placeholder="Enter task name"
+          value={newTaskText}
+          onChange={(e) => setNewTaskText(e.target.value)}
+        />
+        <DatePicker selected={newTaskDate} onChange={(date) => setNewTaskDate(date)} />
+        <Button onClick={addTask}>Add Task</Button>
       </div>
-      <ul>
+      <TaskList>
         {tasks.map((task) => (
-          <li key={task.id}>
-            <span
-              style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
-            >
-              {task.text}
-            </span>
-            <button onClick={() => toggleComplete(task.id)}>
+          <TaskItem key={task.id}>
+            <TaskText completed={task.completed}>{task.text}</TaskText>
+            <span>{task.date.toISOString().split('T')[0]}</span>
+            <Button onClick={() => toggleComplete(task.id)}>
               {task.completed ? 'Mark Incomplete' : 'Mark Complete'}
-            </button>
-            <button onClick={() => deleteTask(task.id)}>Delete</button>
-          </li>
+            </Button>
+            <Button onClick={() => deleteTask(task.id)}>Delete</Button>
+          </TaskItem>
         ))}
-      </ul>
-    </div>
+      </TaskList>
+    </Container>
   );
 };
 
